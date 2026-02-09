@@ -65,7 +65,14 @@ pipeline {
     stage('SonarQube Analysis') {
       steps {
         withCredentials([string(credentialsId: 'SONAR_TOKEN_PATIENT', variable: 'SONAR_TOKEN')]) {
-          sh 'sonar-scanner -Dsonar.host.url=http://100.50.131.6:9000/ -Dsonar.login=$SONAR_TOKEN'
+          sh '''
+            export PATH=$PATH:/opt/sonar-scanner/bin
+            sonar-scanner \
+              -Dsonar.projectKey=patient-service \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=http://100.50.131.6:9000 \
+              -Dsonar.login=$SONAR_TOKEN
+          '''
         }
       }
     }
