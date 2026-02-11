@@ -12,7 +12,7 @@
     "db:migrate:undo": "sequelize-cli db:migrate:undo:all",
     "db:seed": "sequelize-cli db:seed:all",
     "db:seed:undo": "sequelize-cli db:seed:undo:all",
-    "lint": "eslint src --fix",
+    "lint": "eslint src",
     "format": "prettier --write \"src/**/*.js\"",
     "docker:build": "docker build -t patient-service:latest .",
     "docker:run": "docker-compose up -d"

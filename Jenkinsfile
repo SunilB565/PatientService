@@ -1,4 +1,3 @@
-ls
 pipeline {
   agent any
   environment {
@@ -13,12 +12,9 @@ pipeline {
         checkout scm
         sh 'rm -rf node_modules'
         sh 'export NODE_ENV=development && npm install'
-        sh 'npm install --save-dev supertest'
-        sh 'ls -l node_modules/supertest || echo "supertest not found"'
-        sh 'ls -l node_modules'
       }
     }
-    stage('TEST') {
+    stage('Quality Checks') {
       parallel {
         stage('Lint') {
           steps {
@@ -27,28 +23,20 @@ pipeline {
         }
         stage('UnitTest') {
           steps {
-            script {
-              try {
-                sh 'npm test -- --coverage'
-              } catch (err) {
-                echo "Test failures ignored until SonarQube integration is complete."
-              }
-            }
+            sh 'npm test -- --coverage'
           }
         }
-        stage('SonarQube') {
-          steps {
-            withCredentials([string(credentialsId: 'SONAR_TOKEN_PATIENT', variable: 'SONAR_TOKEN')]) {
-              sh '''
-                export PATH=$PATH:/opt/sonar-scanner/bin
-                sonar-scanner \
-                  -Dsonar.projectKey=patient-service \
-                  -Dsonar.sources=. \
-                  -Dsonar.host.url=http://100.50.131.6:9000 \
-                  -Dsonar.login=$SONAR_TOKEN
-              '''
-            }
-          }
+      }
+    }
+    stage('SonarQube') {
+      steps {
+        withCredentials([string(credentialsId: 'SONAR_TOKEN_PATIENT', variable: 'SONAR_TOKEN')]) {
+          sh '''
+            export PATH=$PATH:/opt/sonar-scanner/bin
+            sonar-scanner \
+              -Dsonar.host.url=http://100.50.131.6:9000 \
+              -Dsonar.login=$SONAR_TOKEN
+          '''
         }
       }
     }
